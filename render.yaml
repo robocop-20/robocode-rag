@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: robocode-rag
+    runtime: python
+    plan: free
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: python run.py
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.8
+      - key: PORT
+        value: "10000"
+      - key: ROBORAG_ENV
+        value: production
+      - key: LLM_PROVIDER
+        value: auto
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: HUGGINGFACE_API_KEY
+        sync: false

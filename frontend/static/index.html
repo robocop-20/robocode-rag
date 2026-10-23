@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RoboCode RAG — Autonomous Robotics & Embedded AI Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Header -->
+    <header class="navbar">
+      <div class="brand">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+            <circle cx="12" cy="5" r="2"></circle>
+            <path d="M12 7v4"></path>
+            <line x1="8" y1="16" x2="8" y2="16"></line>
+            <line x1="16" y1="16" x2="16" y2="16"></line>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">RoboCode <span class="accent-text">RAG</span></h1>
+          <p class="brand-tagline">Autonomous AI Assistant for Robotics & Embedded Systems</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="status-badge" id="system-status-badge">
+          <span class="status-dot"></span>
+          <span id="status-text">Connecting to Render...</span>
+        </div>
+        <a href="/docs" target="_blank" class="nav-btn secondary-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          API Docs
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-body">
+      <!-- Sidebar Navigation -->
+      <aside class="sidebar">
+        <nav class="nav-menu">
+          <button class="nav-tab active" data-tab="chat-tab">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>Ask & Search</span>
+          </button>
+          <button class="nav-tab" data-tab="ingest-tab">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <span>Project Indexer</span>
+          </button>
+          <button class="nav-tab" data-tab="analyzer-tab">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span>Robotics Static Audit</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-stats card">
+          <h4 class="stat-title">Index Telemetry</h4>
+          <div class="stat-row">
+            <span>Files Indexed</span>
+            <strong id="stat-files" class="stat-val">0</strong>
+          </div>
+          <div class="stat-row">
+            <span>Chunks Created</span>
+            <strong id="stat-chunks" class="stat-val">0</strong>
+          </div>
+          <div class="stat-row">
+            <span>ROS Nodes</span>
+            <strong id="stat-nodes" class="stat-val">0</strong>
+          </div>
+          <div class="stat-divider"></div>
+          <button id="btn-refresh-stats" class="small-btn">Refresh</button>
+        </div>
+      </aside>
+
+      <!-- Main Content Area -->
+      <main class="content-panel">
+        
+        <!-- Tab 1: Chat & Query -->
+        <section id="chat-tab" class="tab-pane active">
+          <div class="query-box card">
+            <div class="query-input-wrap">
+              <textarea id="query-input" placeholder="Ask about your robotics code (e.g., 'Where is the motor controller PID loop implemented?' or 'Show subscriber callbacks for /scan topic')..." rows="3"></textarea>
+              <div class="query-bar-footer">
+                <div class="quick-tags">
+                  <span class="tag-label">Examples:</span>
+                  <button class="example-chip" data-q="Where is the PID controller implemented?">PID Controller</button>
+                  <button class="example-chip" data-q="Show ROS2 node subscribers and publishers">ROS2 Topics</button>
+                  <button class="example-chip" data-q="Check real-time ISR or blocking delays">Real-Time Audit</button>
+                </div>
+                <div class="query-actions">
+                  <select id="top-k-select" class="dropdown">
+                    <option value="3">Top 3 Chunks</option>
+                    <option value="5" selected>Top 5 Chunks</option>
+                    <option value="8">Top 8 Chunks</option>
+                  </select>
+                  <button id="btn-submit-query" class="btn primary-btn">
+                    <span>Search & Synthesize</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loading state -->
+          <div id="query-loader" class="loader-wrap hidden">
+            <div class="spinner"></div>
+            <p>Querying hybrid vector & lexical index with robotics grounding...</p>
+          </div>
+
+          <!-- Results View -->
+          <div id="results-view" class="results-container hidden">
+            <div class="results-header">
+              <div class="results-meta">
+                <span id="res-latency" class="badge">0 ms</span>
+                <span id="res-count" class="badge">0 Citations</span>
+              </div>
+              <button id="btn-copy-answer" class="small-btn secondary-btn">Copy Answer</button>
+            </div>
+
+            <!-- Grounded Answer Card -->
+            <div class="card answer-card">
+              <h3 class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                Grounded Engineering Response
+              </h3>
+              <div id="answer-content" class="markdown-body"></div>
+            </div>
+
+            <!-- Citations & Code View -->
+            <div class="citations-section">
+              <h3 class="section-title">Verified Source Code Citations</h3>
+              <div id="citations-list" class="citations-grid"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 2: Ingest & Indexer -->
+        <section id="ingest-tab" class="tab-pane">
+          <div class="card indexer-card">
+            <h3 class="card-title">Index Robotics Project</h3>
+            <p class="card-desc">Index ROS / ROS 2 nodes, C/C++ controllers, Arduino sketches, URDF files, and CMake packages into the lexical and vector stores.</p>
+
+            <!-- Option 1: File Upload (Great for Render cloud!) -->
+            <div class="upload-zone" id="drop-zone">
+              <input type="file" id="file-upload-input" accept=".zip,.py,.cpp,.hpp,.c,.h,.ino,.urdf,.xml,.yaml,.launch" style="display:none">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              <h4>Drag & drop robotics project (.zip) or source files here</h4>
+              <p>Ideal for Render cloud deployment — upload your ROS package or firmware folder.</p>
+              <button class="btn secondary-btn" onclick="document.getElementById('file-upload-input').click()">Browse Files</button>
+            </div>
+
+            <div class="or-divider"><span>OR LOCAL PATH</span></div>
+
+            <!-- Option 2: Server path -->
+            <div class="server-path-box">
+              <label>Directory Path on Server:</label>
+              <div class="input-with-button">
+                <input type="text" id="indexer-path-input" value="." placeholder="e.g., ./ or /app or D:/RAG">
+                <button id="btn-index-server" class="btn primary-btn">Index Path</button>
+              </div>
+            </div>
+
+            <div id="index-progress" class="index-feedback hidden"></div>
+
+            <div class="danger-zone">
+              <h4>Reset Index</h4>
+              <p>Clear all files and vector embeddings from the active database.</p>
+              <button id="btn-clear-db" class="btn danger-btn">Clear Database</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 3: Robotics Static Audit -->
+        <section id="analyzer-tab" class="tab-pane">
+          <div class="card audit-card">
+            <h3 class="card-title">Robotics & Real-Time Static Auditor</h3>
+            <p class="card-desc">Directly audit C/C++, ROS2, or Arduino code for non-deterministic delays, dynamic allocations in ISRs, and topic pub/sub mapping.</p>
+            
+            <div class="audit-input-group">
+              <div class="audit-meta-bar">
+                <select id="audit-lang-select" class="dropdown">
+                  <option value="cpp">C++ (ROS / Embedded)</option>
+                  <option value="python">Python (rclpy / rospy)</option>
+                  <option value="arduino">Arduino / C</option>
+                </select>
+                <button id="btn-load-sample-audit" class="small-btn secondary-btn">Load Sample ROS2 Code</button>
+              </div>
+              <textarea id="audit-code-input" class="code-editor" rows="12" placeholder="// Paste robotics C++ or ROS code here to audit..."></textarea>
+              <button id="btn-run-audit" class="btn primary-btn">Run Static Audit</button>
+            </div>
+
+            <div id="audit-results" class="audit-results-wrap hidden">
+              <h4 class="subhead">Audit Results</h4>
+              <div id="audit-summary-cards" class="audit-metrics"></div>
+              <div id="audit-issues-list" class="audit-issues"></div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
