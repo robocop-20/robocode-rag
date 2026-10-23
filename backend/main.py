@@ -32,6 +32,17 @@ app.add_middleware(
 app.include_router(health_router)
 app.include_router(api_router)
 
+# Backward-compatibility route aliases for root /query and /index
+from backend.routes.api import query_codebase, index_directory, IndexRequest, QueryRequest
+
+@app.post("/query", include_in_schema=False)
+async def query_alias(req: QueryRequest):
+    return await query_codebase(req)
+
+@app.post("/index", include_in_schema=False)
+def index_alias(req: IndexRequest):
+    return index_directory(req)
+
 # Mount frontend static files
 STATIC_DIR = pathlib.Path(__file__).resolve().parent.parent / "frontend" / "static"
 if STATIC_DIR.exists():
