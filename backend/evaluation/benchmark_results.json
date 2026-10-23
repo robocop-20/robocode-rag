@@ -1,0 +1,98 @@
+{
+  "total_test_cases": 8,
+  "mrr": 0.8542,
+  "hit_rate_at_1": "75.0%",
+  "hit_rate_at_3": "100.0%",
+  "hit_rate_at_5": "100.0%",
+  "avg_retrieval_latency_ms": 2.46,
+  "test_results": [
+    {
+      "id": "CASE-01",
+      "category": "Control Systems",
+      "query": "Where is the compute_pid loop implemented for velocity error?",
+      "expected_file": "diffbot_controller.cpp",
+      "expected_symbol": "compute_pid",
+      "rank": 1,
+      "reciprocal_rank": 1.0,
+      "latency_ms": 3.3,
+      "status": "PASS"
+    },
+    {
+      "id": "CASE-02",
+      "category": "ROS2 Communication",
+      "query": "Show the subscriber callback for cmd_vel velocity topic",
+      "expected_file": "diffbot_controller.cpp",
+      "expected_symbol": "cmd_vel_callback",
+      "rank": 2,
+      "reciprocal_rank": 0.5,
+      "latency_ms": 2.55,
+      "status": "PASS"
+    },
+    {
+      "id": "CASE-03",
+      "category": "Embedded Firmware",
+      "query": "Where is the encoder interrupt service routine ISR defined?",
+      "expected_file": "motor_driver_arduino.ino",
+      "expected_symbol": "encoder_isr",
+      "rank": 1,
+      "reciprocal_rank": 1.0,
+      "latency_ms": 1.94,
+      "status": "PASS"
+    },
+    {
+      "id": "CASE-04",
+      "category": "Kinematics & URDF",
+      "query": "Find left wheel continuous joint and link in URDF description",
+      "expected_file": "diffbot.urdf.xacro",
+      "expected_symbol": "left_wheel_joint",
+      "rank": 1,
+      "reciprocal_rank": 1.0,
+      "latency_ms": 2.18,
+      "status": "PASS"
+    },
+    {
+      "id": "CASE-05",
+      "category": "ROS2 Launch",
+      "query": "Where is the robot state publisher node configured in the launch file?",
+      "expected_file": "diffbot_launch.py",
+      "expected_symbol": "robot_state_publisher",
+      "rank": 1,
+      "reciprocal_rank": 1.0,
+      "latency_ms": 2.94,
+      "status": "PASS"
+    },
+    {
+      "id": "CASE-06",
+      "category": "Package Dependencies",
+      "query": "Which dependencies are listed in the package xml specification?",
+      "expected_file": "package.xml",
+      "expected_symbol": "geometry_msgs",
+      "rank": 1,
+      "reciprocal_rank": 1.0,
+      "latency_ms": 2.39,
+      "status": "PASS"
+    },
+    {
+      "id": "CASE-07",
+      "category": "Control Systems",
+      "query": "Where is the odometry publisher initialized and published?",
+      "expected_file": "diffbot_controller.cpp",
+      "expected_symbol": "publish_odometry",
+      "rank": 3,
+      "reciprocal_rank": 0.333,
+      "latency_ms": 2.24,
+      "status": "PASS"
+    },
+    {
+      "id": "CASE-08",
+      "category": "Embedded Firmware",
+      "query": "How is non-blocking millis timer calculated in Arduino loop?",
+      "expected_file": "motor_driver_arduino.ino",
+      "expected_symbol": "loop",
+      "rank": 1,
+      "reciprocal_rank": 1.0,
+      "latency_ms": 2.11,
+      "status": "PASS"
+    }
+  ]
+}
