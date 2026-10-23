@@ -88,12 +88,21 @@ def index_directory(req: IndexRequest):
 
             size = len(content.encode("utf-8"))
 
+            # Remove existing records if this file was previously indexed
+            cur.execute("SELECT id FROM files WHERE path = ?;", (str(file_path),))
+            existing = cur.fetchone()
+            if existing:
+                old_id = existing[0]
+                cur.execute("DELETE FROM chunks WHERE file_id = ?;", (old_id,))
+                cur.execute("DELETE FROM robotics_nodes WHERE file_id = ?;", (old_id,))
+                cur.execute("DELETE FROM files WHERE id = ?;", (old_id,))
+
             # Save file record
             cur.execute(
-                "INSERT OR REPLACE INTO files (path, rel_path, language, size) VALUES (?, ?, ?, ?);",
+                "INSERT INTO files (path, rel_path, language, size) VALUES (?, ?, ?, ?);",
                 (str(file_path), rel_path, lang, size),
             )
-            file_id = cur.lastrowid or cur.execute("SELECT id FROM files WHERE path = ?;", (str(file_path),)).fetchone()[0]
+            file_id = cur.lastrowid
 
             # Analyze robotics features
             analysis = analyze_robotics_code(content, lang, str(file_path))
@@ -126,6 +135,8 @@ def index_directory(req: IndexRequest):
                 )
                 all_chunks_for_vectors.append({
                     "file_id": file_id,
+                    "file_path": rel_path,
+                    "language": lang,
                     "chunk_id": c["chunk_id"],
                     "content": c["content"],
                     "symbol_name": c["symbol_name"],

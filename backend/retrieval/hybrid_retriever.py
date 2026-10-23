@@ -83,8 +83,10 @@ class HybridRetriever:
             file_id = item["file_id"]
             cur.execute("SELECT path, rel_path, language FROM files WHERE id = ?;", (file_id,))
             file_row = cur.fetchone()
-            file_path = file_row[1] if file_row and file_row[1] else (file_row[0] if file_row else "unknown")
-            language = file_row[2] if file_row else "text"
+            file_path = file_row[1] if file_row and file_row[1] else (file_row[0] if file_row else item.get("file_path"))
+            if not file_path:
+                continue
+            language = file_row[2] if file_row else item.get("language", "text")
 
             final_citations.append({
                 "file_path": file_path,
