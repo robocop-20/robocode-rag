@@ -1,25 +1,46 @@
 import os
+import time
+import logging
 import pathlib
-from fastapi import FastAPI
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 from backend.config import CORS_ORIGINS
 from backend.database import init_db
 from backend.routes.health import router as health_router
 from backend.routes.api import router as api_router
 
-# Initialize database schema upon startup
-init_db()
+# ─── Structured Logging ───────────────────────────────────────────
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
+logger = logging.getLogger("robocode")
+
+
+# ─── Application Lifespan (startup / shutdown) ────────────────────
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Run once at startup, yield through the app's lifetime, cleanup on shutdown."""
+    logger.info("Initializing database schema …")
+    init_db()
+    logger.info("RoboCode RAG is ready to serve requests.")
+    yield
+    logger.info("RoboCode RAG shutting down …")
+
 
 app = FastAPI(
     title="RoboCode RAG",
     description="Autonomous AI Coding Assistant & RAG Engine for Robotics and Embedded Systems",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
-# Enable CORS for web apps & IDE extensions
+# ─── CORS ──────────────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
@@ -28,7 +49,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include Routers
+
+# ─── Request Logging & Timing Middleware ───────────────────────────
+@app.middleware("http")
+async def log_and_time_requests(request: Request, call_next):
+    start = time.perf_counter()
+    try:
+        response = await call_next(request)
+    except Exception:
+        logger.exception("Unhandled error on %s %s", request.method, request.url.path)
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal server error"},
+        )
+    elapsed_ms = round((time.perf_counter() - start) * 1000, 2)
+    logger.info(
+        "%s %s → %s  (%.1f ms)",
+        request.method,
+        request.url.path,
+        response.status_code,
+        elapsed_ms,
+    )
+    response.headers["X-Response-Time-Ms"] = str(elapsed_ms)
+    return response
+
+
+# ─── Include Routers ───────────────────────────────────────────────
 app.include_router(health_router)
 app.include_router(api_router)
 
@@ -43,7 +89,7 @@ async def query_alias(req: QueryRequest):
 def index_alias(req: IndexRequest):
     return index_directory(req)
 
-# Mount frontend static files
+# ─── Mount Frontend ───────────────────────────────────────────────
 STATIC_DIR = pathlib.Path(__file__).resolve().parent.parent / "frontend" / "static"
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")

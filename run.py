@@ -14,17 +14,26 @@ if __name__ == "__main__":
     env = os.environ.get("ROBORAG_ENV", "production")
     reload = env == "development"
 
-    print(f"==================================================")
-    print(f" RoboCode RAG - Robotics & Embedded Systems AI")
+    # Workers: Render free tier has 512 MB RAM – keep 1 worker.
+    # Override via WEB_CONCURRENCY for paid tiers.
+    workers = int(os.environ.get("WEB_CONCURRENCY", 1))
+
+    print("==================================================")
+    print(" RoboCode RAG — Robotics & Embedded Systems AI")
     print(f" Listening on http://{host}:{port}")
-    print(f" Environment: {env}")
-    print(f"==================================================")
+    print(f" Environment: {env}  |  Workers: {workers}")
+    print("==================================================")
 
     uvicorn.run(
         "backend.main:app",
         host=host,
         port=port,
+        workers=workers if not reload else 1,
         reload=reload,
         proxy_headers=True,
         forwarded_allow_ips="*",
+        access_log=True,
+        timeout_keep_alive=75,          # Render uses 60 s idle timeout; stay above it
+        timeout_graceful_shutdown=30,    # Drain in-flight requests on SIGTERM
     )
+
