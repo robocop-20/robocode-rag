@@ -1,5 +1,8 @@
 # 🤖 RoboCode RAG
 
+[![CI](https://github.com/robocop-20/robocode-rag/actions/workflows/ci.yml/badge.svg)](https://github.com/robocop-20/robocode-rag/actions/workflows/ci.yml)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=robocop-20/robocode-rag)
+
 > **Autonomous AI Coding Assistant & RAG Engine for Robotics & Embedded Systems**  
 > Tailored for ROS 1, ROS 2, Real-Time Linux (PREEMPT_RT), micro-ROS, FreeRTOS, Arduino, Embedded C/C++, and Rust.
 

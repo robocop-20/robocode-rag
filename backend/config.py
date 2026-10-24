@@ -10,7 +10,7 @@ DATA_DIR.mkdir(exist_ok=True)
 DB_PATH = os.environ.get("ROBORAG_DB_PATH", str(DATA_DIR / "robocode.db"))
 
 # LLM Configurations
-LLM_PROVIDER = os.environ.get("LLM_PROVIDER", "auto") # "auto", "openai", "groq", "ollama", "huggingface", "offline"
+LLM_PROVIDER = os.environ.get("LLM_PROVIDER", "offline")  # default to offline synthesizer for public deployments
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 HUGGINGFACE_API_KEY = os.environ.get("HUGGINGFACE_API_KEY", "")
